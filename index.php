@@ -23,7 +23,7 @@ spl_autoload_register(function ($classname)
     {
         require_once $filename;
     }
-}, true, true);
+}, TRUE, TRUE);
 
 final class DB extends DB_Connector
 {
