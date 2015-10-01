@@ -13,6 +13,12 @@ define('DISPLAY_JSON',  1000);
 define('DISPLAY_ARRAY', 2000);
 define('DISPLAY_TEXT',  3000);
 
+// not defined from Skyfire or outside framework
+if (!defined('PARENT_DIRECTORY'))
+{
+    define('PARENT_DIRECTORY', dirname(getcwd()));
+}
+
 // SPL autoloader
 spl_autoload_register(function ($classname)
 {

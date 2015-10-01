@@ -4,7 +4,8 @@ class Stash
 {
     public static function getQuery($query_name, $directory)
     {
-        $file = $_SERVER['DOCUMENT_ROOT'].APP_DIR.'queries/'.$directory.'/'.$query_name.'.sql';
+        $file = PARENT_DIRECTORY.'/queries/'.$directory.'/'.$query_name.'.sql';
+        //$file = $_SERVER['DOCUMENT_ROOT'].APP_DIR.'queries/'.$directory.'/'.$query_name.'.sql';
 
         if (file_exists($file))
         {
