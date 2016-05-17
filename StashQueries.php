@@ -51,6 +51,11 @@ final class DB extends DB_Connector
         return new ProcessQuery($sql_file, 'update');
     }
 
+    public static function insert($sql_file)
+    {
+        return new ProcessQuery($sql_file, 'insert');
+    }
+
     public static function drop($table_name) {}
     public static function truncate($table_name) {}
     public static function fullempty($database_name)
