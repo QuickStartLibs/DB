@@ -6,23 +6,30 @@ class Stash
 
     public static function getQuery($query_name, $directory)
     {
-        if (isset(self::$stash_dir))
-        {
-            $file = self::$stash_dir.'/queries/'.$directory.'/'.$query_name.'.sql';
 
-            if (file_exists($file))
+        if (in_array($directory, array('select', 'update', 'insert', 'delete')))
+        {
+            if (isset(self::$stash_dir))
             {
-                return trim(file_get_contents($file));
+                $file = self::$stash_dir.'/queries/'.$directory.'/'.$query_name.'.sql';
+
+                if (file_exists($file))
+                {
+                    return trim(file_get_contents($file));
+                }
+                else
+                {
+                    die ($file.' doesn\'t exist.');
+                }
             }
             else
             {
-                die ($file.' doesn\'t exist.');
+                die ('DB::define(\'stash_dir\', \'\') is not defined. Stash Query folder cannot be located.');
             }
         }
         else
         {
-            die ('DB::define(\'stash_dir\', \'\') is not defined. Stash Query folder cannot be located.');
+            die ('DB::TYPE is not valid.');
         }
-
     }
 }
