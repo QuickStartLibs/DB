@@ -57,4 +57,4 @@ echo $query;
 
 Stash Queries is licensed under the [MIT License](http://opensource.org/licenses/MIT).
 
-Copyright 2015 [Travis van der Font](http://travisfont.com)
+Copyright 2015-2016 [Travis van der Font](http://travisfont.com)
