@@ -1,5 +1,5 @@
 {
-    "name": "SkyfirePHP/DB",
+    "name": "skyfirephp/db",
     "type": "framework",
     "description": "Stash Queries - PHP SQL library providing an easy, eloquent, and fluent yet expressive way to select, create, update, and delete SQL records.",
     "keywords": ["mysql", "database", "pdo", "maria", "skyfire"],
