@@ -1,0 +1,20 @@
+{
+    "name": "Stash Queries",
+    "type": "framework",
+    "description": "PHP SQL library providing an easy, eloquent, and fluent yet expressive way to select, create, update, and delete SQL records.",
+    "keywords": ["mysql", "database", "pdo", "maria", "skyfire"],
+    "homepage": "https://github.com/SkyfirePHP/DB",
+    "minimum-stability": "stable",
+    "license": "MIT",
+    "authors": [
+    {
+      "name":  "Travis van der Font",
+      "email": "travis.font@gmail.com"
+    }],
+    "require": {
+        "php": ">=5.4",
+    },
+    "require-dev": {
+        "php": ">=5.4"
+    }
+}
