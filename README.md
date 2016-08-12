@@ -12,8 +12,6 @@ This library is originally part of Skyfire's PHP framework database layer known 
 ## Code Examples
 
 ```php
-require_once 'DB/StashQueries.php';
-
 // setting the DB display encoding type (if needed)
 FixCollation::charset('utf-8', FixCollation::TEXT_HTML);
 
@@ -51,6 +49,20 @@ var_dump($data);
 // displays the prepare update statement in plain text (ideal for debugging queries)
 $query = DB::update('PostfromTestById')->text($prepare);
 echo $query;
+```
+
+## Installation:
+Injecting the code mamually, you only have to include 'StashQueries.php' as such:
+```php
+require_once 'DB/StashQueries.php';
+```
+Also, externally through composer by adding 'SkyfirePHP/DB' to composer.json:
+```json
+{
+    "require": {
+        "skyfirephp/db": "dev-master"
+    }
+}
 ```
 
 ## License
