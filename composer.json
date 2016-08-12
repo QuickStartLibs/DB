@@ -10,6 +10,7 @@
       "name":  "Travis van der Font",
       "email": "travis.font@gmail.com"
     }],
+    "minimum-stability": "dev",
     "require": {
         "php": ">=5.4"
     },
