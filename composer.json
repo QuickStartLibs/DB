@@ -10,5 +10,11 @@
     {
       "name":  "Travis van der Font",
       "email": "travis.font@gmail.com"
-    }]
+    }],
+    "require": {
+        "php": ">=5.3.6"
+    },
+    "autoload": {
+        "files": ["StashQueries.php"]
+    }
 }
