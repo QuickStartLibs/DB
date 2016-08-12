@@ -12,7 +12,7 @@
       "email": "travis.font@gmail.com"
     }],
     "require": {
-        "php": ">=5.4",
+        "php": ">=5.4"
     },
     "require-dev": {
         "php": ">=5.4"
