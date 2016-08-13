@@ -89,10 +89,17 @@ class ProcessQuery extends DB_Connector
 
                 $stmt = self::$db->prepare(Stash::getQuery($this->sql_file, $this->sql_type));
                 $exec = $stmt->execute($parameters);
-                        $stmt->closeCursor();
+                $stmt->closeCursor();
 
-                return $exec;
-                //return $stmt->rowCount();
+                if ($this->sql_type = 'insert' && $exec === TRUE)
+                {
+                    return self::$db->lastInsertId();
+                }
+                else
+                {
+                    return $exec;
+                    //return $stmt->rowCount();
+                }
             }
         }
         catch (PDOException $exception)
