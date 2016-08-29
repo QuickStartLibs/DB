@@ -72,6 +72,7 @@ class ProcessQuery extends DB_Connector
                 {
                     //return $stmt->fetchAll(PDO::FETCH_CLASS);
                     $data = array();
+
                     foreach (new LastIterator(new DbRowIterator($stmt)) as $row)
                     {
                         $data[] = $row;
@@ -82,24 +83,44 @@ class ProcessQuery extends DB_Connector
             }
             else
             {
-                #self::$db->beginTransaction();
-                #try { // prepare + execute here
-                #self::$db->commit(); } catch (PDOException $e) {
-                #return $e->getMessage(); }
-
-                $stmt = self::$db->prepare(Stash::getQuery($this->sql_file, $this->sql_type));
-                $exec = $stmt->execute($parameters);
-                $stmt->closeCursor();
-
-                if ($this->sql_type = 'insert' && $exec === TRUE)
+                try
                 {
-                    return self::$db->lastInsertId();
+                            self::$db->beginTransaction();
+                    $stmt = self::$db->prepare(Stash::getQuery($this->sql_file, $this->sql_type));
+
+                    if (!$stmt)
+                    {
+                        echo "\nPDO::errorInfo():\n";
+                        print_r(self::$db->errorInfo());
+
+                        return FALSE;
+                    }
+                    else
+                    {
+                        $exec = $stmt->execute($parameters);
+                                $stmt->closeCursor();
+
+                        self::$db->commit();
+
+                        if ($this->sql_type = 'insert' && $exec === TRUE)
+                        {
+                            return self::$db->lastInsertId();
+                        }
+                        else
+                        {
+                            return $exec;
+                            //return $stmt->rowCount();
+                        }
+                    }
+
                 }
-                else
+                catch (PDOException $e)
                 {
-                    return $exec;
-                    //return $stmt->rowCount();
+                    self::$db->rollBack();
+
+                    return $e->getMessage();
                 }
+
             }
         }
         catch (PDOException $exception)
