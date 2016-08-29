@@ -6,7 +6,6 @@ class Stash
 
     public static function getQuery($query_name, $directory)
     {
-
         if (in_array($directory, array('select', 'update', 'insert', 'delete')))
         {
             if (isset(self::$stash_dir))
