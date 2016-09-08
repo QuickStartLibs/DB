@@ -68,24 +68,41 @@ class ProcessQuery extends DB_Connector
             {
                 $stmt = self::$db->prepare(Stash::getQuery($this->sql_file, $this->sql_type), array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
 
-                if ($stmt->execute($parameters))
+                if (!$stmt)
                 {
-                    //return $stmt->fetchAll(PDO::FETCH_CLASS);
-                    $data = array();
+                    echo "\nPDO::errorInfo():\n";
+                    print_r(self::$db->errorInfo());
 
-                    foreach (new LastIterator(new DbRowIterator($stmt)) as $row)
+                    return FALSE;
+                }
+                else
+                {
+                    if ($stmt->execute($parameters))
                     {
-                        $data[] = $row;
-                    }
+                        //return $stmt->fetchAll(PDO::FETCH_CLASS);
+                        $data = array();
 
-                    return $data;
+                        foreach (new LastIterator(new DbRowIterator($stmt)) as $row)
+                        {
+                            $data[] = $row;
+                        }
+
+                        return $data;
+                    }
+                    else
+                    {
+                        echo "\nPDO::errorInfo():\n";
+                        print_r(self::$db->errorInfo());
+
+                        return FALSE;
+                    }
                 }
             }
             else
             {
                 try
                 {
-                            self::$db->beginTransaction();
+                    self::$db->beginTransaction();
                     $stmt = self::$db->prepare(Stash::getQuery($this->sql_file, $this->sql_type));
 
                     if (!$stmt)
@@ -98,7 +115,7 @@ class ProcessQuery extends DB_Connector
                     else
                     {
                         $exec = $stmt->execute($parameters);
-                                $stmt->closeCursor();
+                        $stmt->closeCursor();
 
                         self::$db->commit();
 
@@ -152,6 +169,7 @@ class ProcessQuery extends DB_Connector
             {
                 //return $stmt->fetchAll(PDO::FETCH_CLASS);
                 $data = array();
+
                 foreach (new LastIterator(new DbRowIterator($stmt)) as $row)
                 {
                     $data[] = $row;

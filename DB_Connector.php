@@ -2,9 +2,9 @@
 
 abstract class DB_Connector
 {
-            const DISPLAY_JSON  = 1000;
-            const DISPLAY_ARRAY = 2000;
-            const DISPLAY_TEXT  = 3000;
+    const DISPLAY_JSON  = 1000;
+    const DISPLAY_ARRAY = 2000;
+    const DISPLAY_TEXT  = 3000;
 
     public static $DATABASE_HOST;
     public static $DATABASE_NAME;
@@ -13,7 +13,7 @@ abstract class DB_Connector
 
     // Database connector
     protected static $db;
-      private static $charset = 'utf8';
+    private   static $charset = 'utf8';
 
     protected $dbh;
 
@@ -32,12 +32,16 @@ abstract class DB_Connector
         return FALSE;
     }
 
-    protected function connect()
+    protected function connect($errmode = TRUE)
     {
         try
         {
             $this->dbh = new PDO('mysql:host='.self::$DATABASE_HOST.';dbname='.self::$DATABASE_NAME.';charset='.self::$charset, self::$DATABASE_USER, self::$DATABASE_PASSWORD);
-            //$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            if ($errmode === TRUE)
+            {
+                $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            }
         }
         catch (PDOException $exception)
         {
