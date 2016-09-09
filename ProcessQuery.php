@@ -4,6 +4,7 @@ class ProcessQuery extends DB_Connector
 {
     private $sql_file;
     private $sql_type;
+    private $inject_vars;
 
     /**
      * Replaces any parameter placeholders in a query with the value of that
@@ -16,6 +17,11 @@ class ProcessQuery extends DB_Connector
      */
     private function interpolateQuery($query, $params)
     {
+        if (empty($params))
+        {
+            return (string) $query;
+        }
+
         $keys   = array();
         $values = $params;
 
@@ -45,13 +51,44 @@ class ProcessQuery extends DB_Connector
         // Walk the array to see if we can add single-quotes to strings
         array_walk($values, create_function('&$v, $k', 'if (!is_numeric($v) && $v!="NULL") $v = "\'".$v."\'";'));
 
-        return preg_replace($keys, $values, $query, 1, $count);
+        return (string) preg_replace($keys, $values, $query, 1, $count);
+    }
+
+    // replace any non-ascii character with its hex code - supports multi-byte characters
+    private function escape($value)
+    {
+        $return = '';
+
+        for ($i = 0; $i < strlen($value); ++$i)
+        {
+            $char = $value[$i];
+            $ord  = ord($char);
+
+            if ($char !== "'" && $char !== "\"" && $char !== '\\' && $ord >= 32 && $ord <= 126)
+            {
+                $return .= $char;
+            }
+            else
+            {
+                $return .= '\\x' . dechex($ord);
+            }
+
+        }
+
+        return (string) $return;
     }
 
     public function __construct($sql_file, $sql_type)
     {
         $this->sql_file = $sql_file;
         $this->sql_type = $sql_type;
+    }
+
+    public function inject($parameters)
+    {
+        $this->inject_vars = $parameters;
+
+        return $this;
     }
 
     public function prepare($parameters)
@@ -66,7 +103,18 @@ class ProcessQuery extends DB_Connector
 
             if ($this->sql_type == 'select')
             {
-                $stmt = self::$db->prepare(Stash::getQuery($this->sql_file, $this->sql_type), array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+                $query = Stash::getQuery($this->sql_file, $this->sql_type);
+
+                if (!empty($this->inject_vars))
+                {
+                    foreach ($this->inject_vars as $var => $value)
+                    {
+                        $value = strip_tags(stripslashes($this->escape($value)));
+                        $query = str_replace('$'.$var, $value, $query);
+                    }
+                }
+
+                $stmt = self::$db->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
 
                 if (!$stmt)
                 {
@@ -100,10 +148,21 @@ class ProcessQuery extends DB_Connector
             }
             else
             {
+                $query = Stash::getQuery($this->sql_file, $this->sql_type);
+
+                if (!empty($this->inject_vars))
+                {
+                    foreach ($this->inject_vars as $var => $value)
+                    {
+                        $value = strip_tags(stripslashes($this->escape($value)));
+                        $query = str_replace('$'.$var, $value, $query);
+                    }
+                }
+
                 try
                 {
                     self::$db->beginTransaction();
-                    $stmt = self::$db->prepare(Stash::getQuery($this->sql_file, $this->sql_type));
+                    $stmt = self::$db->prepare($query);
 
                     if (!$stmt)
                     {
@@ -149,7 +208,18 @@ class ProcessQuery extends DB_Connector
     // prints the query string in plain text
     public function text($parameters = FALSE)
     {
-        return $this->interpolateQuery(Stash::getQuery($this->sql_file, $this->sql_type), $parameters);
+        $query = Stash::getQuery($this->sql_file, $this->sql_type);
+
+        if (!empty($this->inject_vars))
+        {
+            foreach ($this->inject_vars as $var => $value)
+            {
+                $value = strip_tags(stripslashes($this->escape($value)));;
+                $query = str_replace('$'.$var, $value, $query);
+            }
+        }
+
+        return $this->interpolateQuery($query, $parameters);
     }
 
     // plain queries without any prepare data
@@ -163,7 +233,18 @@ class ProcessQuery extends DB_Connector
                 self::$db = $this->connect();
             }
 
-            $stmt = self::$db->prepare(Stash::getQuery($this->sql_file, $this->sql_type), array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+            $query = Stash::getQuery($this->sql_file, $this->sql_type);
+
+            if (!empty($this->inject_vars))
+            {
+                foreach ($this->inject_vars as $var => $value)
+                {
+                    $value = strip_tags(stripslashes($this->escape($value)));
+                    $query = str_replace('$'.$var, $value, $query);
+                }
+            }
+
+            $stmt = self::$db->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
 
             if ($stmt->execute())
             {
