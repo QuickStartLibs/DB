@@ -31,6 +31,30 @@ final class DB extends DB_Connector
 {
     public static $exceptionType;
 
+    private function __construct()
+    {
+        if ($this->dbh == NULL)
+        {
+            try
+            {
+                $this->dbh = new PDO('mysql:host='.self::$DATABASE_HOST.';dbname='.self::$DATABASE_NAME.';charset='.self::$charset, self::$DATABASE_USER, self::$DATABASE_PASSWORD);
+
+                if (self::$errmode === TRUE)
+                {
+                    $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                }
+            }
+            catch (PDOException $exception)
+            {
+                echo self::PDOException($exception, self::DISPLAY_TEXT);
+
+                return FALSE;
+            }
+        }
+
+        return $this->dbh;
+    }
+
     public static function utf8($text)
     {
         return mb_convert_encoding($text, "HTML-ENTITIES", 'UTF-8');
@@ -38,22 +62,42 @@ final class DB extends DB_Connector
 
     public static function query($statement, array $parameters = NULL)
     {
-        return new RawQuery($statement, $parameters);
+        if (self::$db == NULL)
+        {
+            self::$db = new self();
+        }
+
+        return new RawQuery($statement, $parameters, self::$db);
     }
 
     public static function select($sql_file)
     {
-        return new ProcessQuery($sql_file, 'select');
+        if (self::$db == NULL)
+        {
+            self::$db = new self();
+        }
+
+        return new ProcessQuery($sql_file, 'select', self::$db);
     }
 
     public static function update($sql_file)
     {
-        return new ProcessQuery($sql_file, 'update');
+        if (self::$db == NULL)
+        {
+            self::$db = new self();
+        }
+
+        return new ProcessQuery($sql_file, 'update', self::$db);
     }
 
     public static function insert($sql_file)
     {
-        return new ProcessQuery($sql_file, 'insert');
+        if (self::$db == NULL)
+        {
+            self::$db = new self();
+        }
+
+        return new ProcessQuery($sql_file, 'insert', self::$db);
     }
 
     public static function drop($table_name) {}

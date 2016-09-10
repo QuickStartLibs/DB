@@ -78,10 +78,15 @@ class ProcessQuery extends DB_Connector
         return (string) $return;
     }
 
-    public function __construct($sql_file, $sql_type)
+    public function __construct($sql_file = NULL, $sql_type = NULL, DB $dbh)
     {
         $this->sql_file = $sql_file;
         $this->sql_type = $sql_type;
+
+        if ($this->dbh == NULL)
+        {
+            $this->dbh = $dbh;
+        }
     }
 
     public function inject($parameters)
@@ -95,12 +100,6 @@ class ProcessQuery extends DB_Connector
     {
         try
         {
-            // checking and establish a live db connector
-            if (empty($this->dbh))
-            {
-                self::$db = $this->connect();
-            }
-
             if ($this->sql_type == 'select')
             {
                 $query = Stash::getQuery($this->sql_file, $this->sql_type);
@@ -114,12 +113,12 @@ class ProcessQuery extends DB_Connector
                     }
                 }
 
-                $stmt = self::$db->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+                $stmt = $this->dbh->dbh->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
 
                 if (!$stmt)
                 {
                     echo "\nPDO::errorInfo():\n";
-                    print_r(self::$db->errorInfo());
+                    print_r($this->dbh->dbh->errorInfo());
 
                     return FALSE;
                 }
@@ -135,12 +134,17 @@ class ProcessQuery extends DB_Connector
                             $data[] = $row;
                         }
 
+                        $stmt->closeCursor();  // closing
+                        $stmt = NULL;
+
                         return $data;
                     }
                     else
                     {
                         echo "\nPDO::errorInfo():\n";
-                        print_r(self::$db->errorInfo());
+                        print_r($this->dbh->dbh->errorInfo());
+
+                        $stmt = NULL; // closing
 
                         return FALSE;
                     }
@@ -161,29 +165,33 @@ class ProcessQuery extends DB_Connector
 
                 try
                 {
-                    self::$db->beginTransaction();
-                    $stmt = self::$db->prepare($query);
+                            $this->dbh->dbh->beginTransaction();
+                    $stmt = $this->dbh->dbh->prepare($query);
 
                     if (!$stmt)
                     {
                         echo "\nPDO::errorInfo():\n";
-                        print_r(self::$db->errorInfo());
+                        print_r($this->dbh->dbh->errorInfo());
 
                         return FALSE;
                     }
                     else
                     {
                         $exec = $stmt->execute($parameters);
-                        $stmt->closeCursor();
+                                $stmt->closeCursor();
 
-                        self::$db->commit();
+                        $this->dbh->dbh->commit();
 
                         if ($this->sql_type = 'insert' && $exec === TRUE)
                         {
-                            return self::$db->lastInsertId();
+                            $stmt = NULL; // closing
+
+                            return $this->dbh->dbh->lastInsertId();
                         }
                         else
                         {
+                            $stmt = NULL; // closing
+
                             return $exec;
                             //return $stmt->rowCount();
                         }
@@ -192,7 +200,7 @@ class ProcessQuery extends DB_Connector
                 }
                 catch (PDOException $e)
                 {
-                    self::$db->rollBack();
+                    $this->dbh->dbh->rollBack();
 
                     return $e->getMessage();
                 }
@@ -227,12 +235,6 @@ class ProcessQuery extends DB_Connector
     {
         try
         {
-            // checking and establish a live db connector
-            if (empty($this->dbh))
-            {
-                self::$db = $this->connect();
-            }
-
             $query = Stash::getQuery($this->sql_file, $this->sql_type);
 
             if (!empty($this->inject_vars))
@@ -244,7 +246,7 @@ class ProcessQuery extends DB_Connector
                 }
             }
 
-            $stmt = self::$db->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+            $stmt = $this->dbh->dbh->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
 
             if ($stmt->execute())
             {
@@ -256,7 +258,19 @@ class ProcessQuery extends DB_Connector
                     $data[] = $row;
                 }
 
+                $stmt->closeCursor(); // closing
+                $stmt = NULL;
+
                 return $data;
+            }
+            else
+            {
+                echo "\nPDO::errorInfo():\n";
+                print_r($this->dbh->dbh->errorInfo());
+
+                $stmt = NULL; // closing
+
+                return FALSE;
             }
         }
         catch (PDOException $exception)
