@@ -15,7 +15,8 @@ abstract class DB_Connector
     protected static $db;
     protected static $cc = 0;
     protected static $charset = 'utf8';
-    protected static $errmode = TRUE;
+    protected static $persistent = FALSE;
+    protected static $errmode    = TRUE;
 
     protected $dbh;
 
@@ -38,7 +39,14 @@ abstract class DB_Connector
     {
         try
         {
-            $this->dbh = new PDO('mysql:host='.self::$DATABASE_HOST.';dbname='.self::$DATABASE_NAME.';charset='.self::$charset, self::$DATABASE_USER, self::$DATABASE_PASSWORD);
+            if (self::$persistent === TRUE)
+            {
+                $this->dbh = new PDO('mysql:host='.self::$DATABASE_HOST.';dbname='.self::$DATABASE_NAME.';charset='.self::$charset, self::$DATABASE_USER, self::$DATABASE_PASSWORD, array(PDO::ATTR_PERSISTENT => TRUE));
+            }
+            else
+            {
+                $this->dbh = new PDO('mysql:host='.self::$DATABASE_HOST.';dbname='.self::$DATABASE_NAME.';charset='.self::$charset, self::$DATABASE_USER, self::$DATABASE_PASSWORD);
+            }
 
             if (self::$errmode === TRUE)
             {
@@ -76,6 +84,12 @@ abstract class DB_Connector
                 break;
             case 'charset':
                 self::$charset  = $value;
+                break;
+            case 'persistent':
+                if ($value === TRUE || trim($value) == 'yes')
+                {
+                    self::$persistent  = TRUE;
+                }
                 break;
         }
     }
