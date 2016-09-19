@@ -51,6 +51,26 @@ $query = DB::update('PostfromTestById')->text($prepare);
 echo $query;
 ```
 
+## Injections:
+
+To assign dynamic variables outside queries without binding (secured injections) such as tables name and such which are not possible by PDO binding:
+```php
+$data = DB::select('get.fieldData.byId')->inject(array
+(
+    'field' => $data->field,
+    'table' => $table_name
+))->prepare(array('id' => (int) $record->id));
+```
+
+## Persistent Connections:
+
+To have persistent connections for all queries, this can be done by defining it in the DB configurations - as such:
+```php
+DB::define('persistent', TRUE);
+// DB::define('persistent', 'yes');
+```
+Both examples above work perfectly, only TRUE or 'yes' are allowed.
+
 ## Installation:
 Injecting the code mamually, you only have to include 'StashQueries.php' as such:
 ```php
