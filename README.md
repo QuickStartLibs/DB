@@ -53,7 +53,7 @@ echo $query;
 
 ## Injections:
 
-To assign dynamic variables outside queries without binding (secured injections) such as tables name and such which are not possible by PDO binding:
+To assign dynamic variables outside queries without binding (secured injections) such as table names and fields which are not possible by PDO binding:
 ```php
 $data = DB::select('get.fieldData.byId')->inject(array
 (
