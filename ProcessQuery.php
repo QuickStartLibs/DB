@@ -178,20 +178,23 @@ class ProcessQuery extends DB_Connector
                     else
                     {
                         $exec = $stmt->execute($parameters);
-                                $stmt->closeCursor();
-
-                        $this->dbh->dbh->commit();
 
                         if ($this->sql_type == 'insert' && $exec === TRUE)
                         {
-                            $stmt = NULL; // closing
+                            $lastInsertId = $this->dbh->dbh->lastInsertId();
+                        }
 
-                            return $this->dbh->dbh->lastInsertId();
+                        $stmt->closeCursor();
+                        $this->dbh->dbh->commit();
+
+                        $stmt = NULL; // closing
+
+                        if (isset($lastInsertId))
+                        {
+                            return $lastInsertId;
                         }
                         else
                         {
-                            $stmt = NULL; // closing
-
                             return $exec;
                             //return $stmt->rowCount();
                         }
