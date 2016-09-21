@@ -182,7 +182,7 @@ class ProcessQuery extends DB_Connector
 
                         $this->dbh->dbh->commit();
 
-                        if ($this->sql_type = 'insert' && $exec === TRUE)
+                        if ($this->sql_type == 'insert' && $exec === TRUE)
                         {
                             $stmt = NULL; // closing
 
