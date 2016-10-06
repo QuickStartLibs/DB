@@ -96,7 +96,7 @@ class ProcessQuery extends DB_Connector
         return $this;
     }
 
-    public function prepare($parameters)
+    public function prepare(array $parameters)
     {
         try
         {
