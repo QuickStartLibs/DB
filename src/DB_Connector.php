@@ -41,11 +41,11 @@ abstract class DB_Connector
         {
             if (self::$persistent === TRUE)
             {
-                $this->dbh = new PDO('mysql:host='.self::$DATABASE_HOST.';dbname='.self::$DATABASE_NAME.';charset='.self::$charset, self::$DATABASE_USER, self::$DATABASE_PASSWORD, array(PDO::ATTR_PERSISTENT => TRUE));
+                $this->dbh = new PDO('mysql:host='.self::$DATABASE_HOST.';dbname='.self::$DATABASE_NAME.';charset='.self::$charset, self::$DATABASE_USER, self::$DATABASE_PASSWORD, array(PDO::ATTR_PERSISTENT => TRUE, PDO::MYSQL_ATTR_FOUND_ROWS => TRUE));
             }
             else
             {
-                $this->dbh = new PDO('mysql:host='.self::$DATABASE_HOST.';dbname='.self::$DATABASE_NAME.';charset='.self::$charset, self::$DATABASE_USER, self::$DATABASE_PASSWORD);
+                $this->dbh = new PDO('mysql:host='.self::$DATABASE_HOST.';dbname='.self::$DATABASE_NAME.';charset='.self::$charset, self::$DATABASE_USER, self::$DATABASE_PASSWORD, array(PDO::MYSQL_ATTR_FOUND_ROWS => TRUE));
             }
 
             if (self::$errmode === TRUE)
