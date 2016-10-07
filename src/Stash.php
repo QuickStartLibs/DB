@@ -4,7 +4,7 @@ class Stash
 {
     public static $stash_dir;
 
-    public static function getQuery($query_name, $directory)
+    public static function getQuery($query_name, $directory, $original_text = FALSE)
     {
         if (in_array($directory, array('select', 'update', 'insert', 'delete')))
         {
@@ -14,7 +14,15 @@ class Stash
 
                 if (file_exists($file))
                 {
-                    return trim(file_get_contents($file));
+                    if ($original_text === FALSE)
+                    {
+                        return preg_replace("/[\r\n]+/", " ", trim(file_get_contents($file)));
+                    }
+                    else
+                    {
+                        return trim(file_get_contents($file));
+                    }
+
                 }
                 else
                 {
