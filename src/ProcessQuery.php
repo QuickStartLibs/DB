@@ -177,26 +177,47 @@ class ProcessQuery extends DB_Connector
                     }
                     else
                     {
-                        $exec = $stmt->execute($parameters);
-
-                        if ($this->sql_type == 'insert' && $exec === TRUE)
+                        if ($exec = $stmt->execute($parameters))
                         {
-                            $lastInsertId = $this->dbh->dbh->lastInsertId();
-                        }
+                            if ($this->sql_type == 'insert' && $exec === TRUE)
+                            {
+                                $lastInsertId = $this->dbh->dbh->lastInsertId();
+                            }
 
-                        $stmt->closeCursor();
-                        $this->dbh->dbh->commit();
+                            $stmt->closeCursor();
+                            $this->dbh->dbh->commit();
 
-                        $stmt = NULL; // closing
+                            if (isset($lastInsertId))
+                            {
+                                $stmt = NULL; // closing
 
-                        if (isset($lastInsertId))
-                        {
-                            return $lastInsertId;
+                                return $lastInsertId;
+                            }
+                            else
+                            {
+                                if ($this->sql_type == 'update')
+                                {
+                                    $rowCount = $stmt->rowCount();
+                                    $stmt     = NULL; // closing
+
+                                    return $rowCount;
+                                }
+                                else
+                                {
+                                    $stmt = NULL; // closing
+
+                                    return $exec;
+                                }
+                            }
                         }
                         else
                         {
-                            return $exec;
-                            //return $stmt->rowCount();
+                            echo "\nPDO::errorInfo():\n";
+                            print_r($this->dbh->dbh->errorInfo());
+
+                            $stmt = NULL; // closing
+
+                            return FALSE;
                         }
                     }
 
@@ -219,7 +240,7 @@ class ProcessQuery extends DB_Connector
     // prints the query string in plain text
     public function text($parameters = FALSE)
     {
-        $query = Stash::getQuery($this->sql_file, $this->sql_type);
+        $query = Stash::getQuery($this->sql_file, $this->sql_type, TRUE);
 
         if (!empty($this->inject_vars))
         {
