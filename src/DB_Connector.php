@@ -93,4 +93,56 @@ abstract class DB_Connector
                 break;
         }
     }
+    
+    // creates database if not existing
+    public static function createNotExist($database_name, $exception_type = self::DISPLAY_TEXT)
+    {
+        $database_name = trim($database_name);
+
+        if (!empty($database_name))
+        {
+            try
+            {
+                $dbh = new PDO('mysql:host='.self::$DATABASE_HOST.';charset='.self::$charset, self::$DATABASE_USER, self::$DATABASE_PASSWORD, array(PDO::MYSQL_ATTR_FOUND_ROWS => TRUE));
+
+                if (self::$errmode === TRUE)
+                {
+                    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                }
+
+                return (bool) $dbh->exec('CREATE DATABASE IF NOT EXISTS '.$database_name.';') or die(function ($dbh) use ($exception_type)
+                {
+                         switch ($exception_type)
+                         {
+                             case 1000:
+                                 echo json_encode(array('status' => 'PDOException', 'message' => $dbh->errorInfo()));
+                             case 2000:
+                                 echo array('status' => 'PDOException', 'message' => $dbh->errorInfo());
+                             case 3000:
+                                 echo 'PDOException: '.$dbh->errorInfo();
+                         }
+                });
+            }
+            catch (PDOException $exception)
+            {
+                switch ($exception_type)
+                {
+                    case 1000:
+                        echo json_encode(array('status' => 'PDOException', 'message' => $exception->getMessage()));
+                    case 2000:
+                        echo array('status' => 'PDOException', 'message' => $exception->getMessage());
+                    case 3000:
+                        echo 'PDOException: '.$exception->getMessage();
+                }
+
+                return FALSE;
+            }
+        }
+        else
+        {
+            die ('DB::createNotExist($name) - $name is not valid or empty.');
+
+            return FALSE;
+        }
+    }
 }
