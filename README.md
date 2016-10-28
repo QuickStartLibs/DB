@@ -71,6 +71,23 @@ DB::define('persistent', TRUE);
 ```
 Both examples above work perfectly, only TRUE or 'yes' are allowed.
 
+
+## Creating Query Folders
+
+If query don't exist (or uncertainity of their existance), calling the following function will create the query folders if they do not exist. The function will return back FALSE, if no directories were created, or the count of (e.g. 4) directories created.
+```php
+DB::createQueryDirectories();
+```
+Note: It's important to place this function after all DB::define() calls.
+
+
+## Creating a database if not existing (shortcut)
+```php
+DB::createNotExist('database_name');
+```
+Note: It's important to place this function after all DB::define() calls.
+
+
 ## Installation:
 Injecting the code mamually, you only have to include 'StashQueries.php' as such:
 ```php
