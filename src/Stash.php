@@ -3,10 +3,11 @@
 class Stash
 {
     public static $stash_dir;
+    const query_types = array('select', 'update', 'insert', 'delete');
 
     public static function getQuery($query_name, $directory, $original_text = FALSE)
     {
-        if (in_array($directory, array('select', 'update', 'insert', 'delete')))
+        if (in_array($directory, self::query_types))
         {
             if (isset(self::$stash_dir))
             {
@@ -22,7 +23,6 @@ class Stash
                     {
                         return trim(file_get_contents($file));
                     }
-
                 }
                 else
                 {

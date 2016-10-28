@@ -145,4 +145,29 @@ abstract class DB_Connector
             return FALSE;
         }
     }
+    
+    public static function createQueryDirectories()
+    {
+        $handle = FALSE;
+
+        foreach (Stash::query_types as $type)
+        {
+            if (!is_dir(Stash::$stash_dir.'/queries/'.$type))
+            {
+                if (mkdir(Stash::$stash_dir.'/queries/'.$type, 0755, TRUE))
+                {
+                    if ($handle === FALSE)
+                    {
+                        $handle = 1;
+                    }
+                    else
+                    {
+                        ++$handle;
+                    }
+                }
+            }
+        }
+
+        return $handle;
+    }
 }
