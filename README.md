@@ -16,7 +16,7 @@ This library is originally part of Skyfire's PHP framework database layer known 
 FixCollation::charset('utf-8', FixCollation::TEXT_HTML);
 
 // setting Database credentials
-DB::define('stash_dir',   getcwd());
+DB::define('stash_dir',   getcwd()); // or dirname(__FILE__)
 DB::define('host',       'localhost');
 DB::define('dbname',     'test_db1');
 DB::define('dbuser',     'root');
