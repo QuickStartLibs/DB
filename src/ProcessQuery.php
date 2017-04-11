@@ -108,7 +108,9 @@ class ProcessQuery extends DB_Connector
                 {
                     foreach ($this->inject_vars as $var => $value)
                     {
-                        $value = strip_tags(stripslashes($this->escape($value)));
+                        //$value = strip_tags(stripslashes($this->escape($value)));
+                        $value = strip_tags(stripslashes($value));
+                        //$value = html_entity_decode($value, ENT_COMPAT, 'UTF-8');
                         $query = str_replace('$'.$var, $value, $query);
                     }
                 }
@@ -124,7 +126,30 @@ class ProcessQuery extends DB_Connector
                 }
                 else
                 {
-                    if ($stmt->execute($parameters))
+                    // TODO: THIS NEEDS TO BE TESTED
+                    foreach ($parameters as $key => $element)
+                    {
+                        switch (TRUE)
+                        {
+                            case is_int($element):
+                                $param = PDO::PARAM_INT;
+                                break;
+                            case is_bool($element):
+                                $param = PDO::PARAM_BOOL;
+                                break;
+                            case is_null($element):
+                                $param = PDO::PARAM_NULL;
+                                break;
+                            default:
+                                $param = PDO::PARAM_STR;
+                                break;
+                        }
+
+                        $stmt->bindValue(sprintf(':%s', $key), $element, $param);
+                    }
+
+                    //if ($stmt->execute($parameters))
+                    if ($stmt->execute())
                     {
                         //return $stmt->fetchAll(PDO::FETCH_CLASS);
                         $data = array();
@@ -158,7 +183,9 @@ class ProcessQuery extends DB_Connector
                 {
                     foreach ($this->inject_vars as $var => $value)
                     {
-                        $value = strip_tags(stripslashes($this->escape($value)));
+                        //$value = strip_tags(stripslashes($this->escape($value)));
+                        $value = strip_tags(stripslashes($value));
+                        //$value = html_entity_decode($value, ENT_COMPAT, 'UTF-8');
                         $query = str_replace('$'.$var, $value, $query);
                     }
                 }
@@ -246,7 +273,9 @@ class ProcessQuery extends DB_Connector
         {
             foreach ($this->inject_vars as $var => $value)
             {
-                $value = strip_tags(stripslashes($this->escape($value)));;
+                //$value = strip_tags(stripslashes($this->escape($value)));
+                $value = strip_tags(stripslashes($value));
+                //$value = html_entity_decode($value, ENT_COMPAT, 'UTF-8');
                 $query = str_replace('$'.$var, $value, $query);
             }
         }
@@ -265,7 +294,9 @@ class ProcessQuery extends DB_Connector
             {
                 foreach ($this->inject_vars as $var => $value)
                 {
-                    $value = strip_tags(stripslashes($this->escape($value)));
+                    //$value = strip_tags(stripslashes($this->escape($value)));
+                    $value = strip_tags(stripslashes($value));
+                    //$value = html_entity_decode($value, ENT_COMPAT, 'UTF-8');
                     $query = str_replace('$'.$var, $value, $query);
                 }
             }
