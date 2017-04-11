@@ -13,8 +13,8 @@ abstract class DB_Connector
 
     // Database connector
     protected static $db;
-    protected static $cc = 0;
-    protected static $charset = 'utf8';
+    protected static $cc         = 0;
+    protected static $charset    = 'utf8';
     protected static $persistent = FALSE;
     protected static $errmode    = TRUE;
 
@@ -65,28 +65,28 @@ abstract class DB_Connector
 
     public static function define($name, $value)
     {
-        switch ($name)
+        switch (strtoupper($name))
         {
-            case 'stash_dir':
+            case 'STASH_DIR':
                 Stash::$stash_dir = $value;
                 break;
-            case 'host':
+            case 'HOST':
                 self::$DATABASE_HOST = $value;
                 break;
-            case 'dbname':
+            case 'DBNAME':
                 self::$DATABASE_NAME = $value;
                 break;
-            case 'dbuser':
+            case 'DBUSER':
                 self::$DATABASE_USER = $value;
                 break;
-            case 'dbpassword':
+            case 'DBPASSWORD':
                 self::$DATABASE_PASSWORD = $value;
                 break;
-            case 'charset':
+            case 'CHARSET':
                 self::$charset  = $value;
                 break;
-            case 'persistent':
-                if ($value === TRUE || trim($value) == 'yes')
+            case 'PERSISTENT':
+                if ($value === TRUE || strtoupper(trim($value)) == 'YES')
                 {
                     self::$persistent  = TRUE;
                 }
@@ -110,16 +110,19 @@ abstract class DB_Connector
                     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 }
 
-                return (bool) $dbh->exec('CREATE DATABASE IF NOT EXISTS '.$database_name.';') or die(function ($dbh) use ($exception_type)
+                return (bool) $dbh->exec('CREATE DATABASE IF NOT EXISTS '.$database_name.';') || die (function ($dbh) use ($exception_type)
                 {
                          switch ($exception_type)
                          {
                              case 1000:
                                  echo json_encode(array('status' => 'PDOException', 'message' => $dbh->errorInfo()));
+                                 return NULL;
                              case 2000:
                                  echo array('status' => 'PDOException', 'message' => $dbh->errorInfo());
+                                 return NULL;
                              case 3000:
                                  echo 'PDOException: '.$dbh->errorInfo();
+                                 return NULL;
                          }
                 });
             }
@@ -129,21 +132,23 @@ abstract class DB_Connector
                 {
                     case 1000:
                         echo json_encode(array('status' => 'PDOException', 'message' => $exception->getMessage()));
+                        return FALSE;
                     case 2000:
                         echo array('status' => 'PDOException', 'message' => $exception->getMessage());
+                        return FALSE;
                     case 3000:
                         echo 'PDOException: '.$exception->getMessage();
+                        return FALSE;
                 }
-
-                return FALSE;
             }
         }
         else
         {
             die ('DB::createNotExist($name) - $name is not valid or empty.');
 
-            return FALSE;
         }
+
+        return FALSE;
     }
     
     public static function createQueryDirectories()
