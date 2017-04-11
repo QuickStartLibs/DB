@@ -4,13 +4,15 @@ Stash Queries is a PHP SQL library providing an easy, eloquent, and fluent yet e
 
 This library is originally part of Skyfire's PHP framework database layer known as *DB* service.
 
-_Note:_ Stash Queries isn't an ORM in any way or shape, but rather a wrapper reaplcement for native PDO.
+_Note:_ Stash Queries isn't an ORM in any way or shape, but rather a wrapper re-placement for native PDO.
+
 ## Requirements
 
 - PHP >=5.6+
 - PDO_MYSQL PHP extensions
 
-*Due to security and feature reasons, PHP 5.6 is required. At most by standards, you should be using a PHP version above or at 5.6 by now.*
+*Due to security and feature reasons, PHP 5.6 is required.*
+<br/>*At most by standards, you should be using a PHP version above or at 5.6 by now.*
 
 ## Code Examples
 
