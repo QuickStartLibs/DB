@@ -1,10 +1,12 @@
 # Stash Queries
 
-Stash Queries is a PHP SQL library providing an easy, eloquent, and fluent yet expressive way to select, create, update, and delete SQL records. The layer fluency provides a direct way to interact with SQL using actual SQL files.
+Stash Queries is a PHP SQL library providing an easy, eloquent, and fluent yet expressive way to select, create, update, and delete SQL records. Overall, it's a simple thin wrapper around PHP's PDO database abstraction layer. The layer fluency provides a direct way to interact with SQL using actual SQL files.
 
 This library is originally part of Skyfire's PHP framework database layer known as *DB* service.
 
 _Note:_ Stash Queries isn't an ORM in any way or shape, but rather a wrapper replacement for native PDO.
+
+Currently Stash Queries works only with MySQL and PostgreSQL databases. Support for other platforms is planned for later releases.
 
 ## Requirements
 
@@ -98,7 +100,7 @@ Injecting the code mamually, you only have to include 'StashQueries.php' as such
 ```php
 require_once 'DB/StashQueries.php';
 ```
-Also, externally through composer by adding 'SkyfirePHP/DB' to composer.json:
+Also, externally through composer by adding 'SkyfirePHP/DB' to composer dependencies in composer.json:
 ```json
 {
     "require": {
