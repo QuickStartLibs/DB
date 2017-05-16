@@ -6,7 +6,7 @@ This library is originally part of Skyfire's PHP framework database layer known 
 
 _Note:_ Stash Queries isn't an ORM in any way or shape, but rather a wrapper replacement for native PDO.
 
-Currently Stash Queries works only with MySQL and PostgreSQL databases. Support for other platforms is planned for later releases.
+_Currently Stash Queries works only with MySQL and PostgreSQL databases. Support for other platforms is planned for later releases._
 
 ## Requirements
 
