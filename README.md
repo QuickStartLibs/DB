@@ -113,4 +113,4 @@ Also, externally through composer by adding 'SkyfirePHP/DB' to composer dependen
 
 Stash Queries is licensed under the [MIT License](http://opensource.org/licenses/MIT).
 
-Copyright 2015-2016 [Travis van der Font](http://travisfont.com)
+Copyright 2015-2017 [Travis van der Font](http://travisfont.com)
