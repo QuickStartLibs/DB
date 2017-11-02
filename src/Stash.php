@@ -17,12 +17,19 @@ class Stash
                 {
                     if ($original_text === FALSE)
                     {
-                        return preg_replace("/[\r\n]+/", " ", trim(file_get_contents($file)));
+                        $file_contents = preg_replace("/[\r\n]+/", " ", trim(file_get_contents($file)));
                     }
                     else
                     {
-                        return trim(file_get_contents($file));
+                        $file_contents = trim(file_get_contents($file));
                     }
+                    
+                    if (empty($file_contents))
+                    {
+                        die ($file.' is empty.');
+                    }
+                    
+                    return $file_contents;
                 }
                 else
                 {
