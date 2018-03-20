@@ -157,9 +157,11 @@ abstract class DB_Connector
 
         foreach (Stash::query_types as $type)
         {
-            if (!is_dir(Stash::$stash_dir.'/queries/'.$type))
+            $file = vsprintf('%s/queries/%s', [Stash::$stash_dir, $type]);
+
+            if (!is_dir($file))
             {
-                if (mkdir(Stash::$stash_dir.'/queries/'.$type, 0755, TRUE))
+                if (mkdir($file, 0755, TRUE))
                 {
                     if ($handle === FALSE)
                     {
@@ -169,6 +171,10 @@ abstract class DB_Connector
                     {
                         ++$handle;
                     }
+                }
+                else
+                {
+                    trigger_error(sprintf('mkdir(): Permission denied for creating "%s"', $file), E_USER_ERROR);
                 }
             }
         }
