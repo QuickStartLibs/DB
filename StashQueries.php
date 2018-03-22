@@ -31,6 +31,7 @@ spl_autoload_register(function ($classname)
 final class DB extends DB_Connector
 {
     public static $exceptionType;
+    public $dbh;
 
     private function __construct()
     {

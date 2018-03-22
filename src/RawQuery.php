@@ -16,7 +16,7 @@ class RawQuery extends DB_Connector
 
         if ($this->dbh == NULL)
         {
-            $this->dbh = $dbh;
+            $this->dbh = $dbh->dbh;
         }
     }
 
@@ -24,7 +24,7 @@ class RawQuery extends DB_Connector
     {
         try
         {
-            $stmt = $this->dbh->dbh->prepare($this->statement, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+            $stmt = $this->dbh->prepare($this->statement, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
 
             if ($stmt->execute($this->parameters))
             {
@@ -49,7 +49,7 @@ class RawQuery extends DB_Connector
             else
             {
                 echo "\nPDO::errorInfo():\n";
-                print_r($this->dbh->dbh->errorInfo());
+                print_r($this->dbh->errorInfo());
 
                 $stmt = NULL; // closing
 

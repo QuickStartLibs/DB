@@ -110,7 +110,7 @@ abstract class DB_Connector
                     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 }
 
-                return (bool) $dbh->exec('CREATE DATABASE IF NOT EXISTS '.$database_name.';') || die (function ($dbh) use ($exception_type)
+                return (bool) $dbh->exec('CREATE DATABASE IF NOT EXISTS '.$database_name.';') || die (function (PDO $dbh) use ($exception_type)
                 {
                          switch ($exception_type)
                          {

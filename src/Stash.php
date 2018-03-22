@@ -3,7 +3,7 @@
 class Stash
 {
     public static $stash_dir;
-    const query_types = array('select', 'update', 'insert', 'delete');
+            const query_types = array('select', 'update', 'insert', 'delete');
 
     public static function getQuery($query_name, $directory, $original_text = FALSE)
     {

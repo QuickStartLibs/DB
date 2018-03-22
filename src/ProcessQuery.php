@@ -6,78 +6,6 @@ class ProcessQuery extends DB_Connector
     private $sql_type;
     private $inject_vars;
 
-    /**
-     * Replaces any parameter placeholders in a query with the value of that
-     * parameter. Useful for debugging. Assumes anonymous parameters from
-     * $params are are in the same order as specified in $query
-     *
-     * @param   string  $query  The sql query with parameter placeholders
-     * @param    array  $params The array of substitution parameters
-     * @return  string          The interpolated query
-     */
-    private function interpolateQuery($query, $params)
-    {
-        if (empty($params))
-        {
-            return (string) $query;
-        }
-
-        $keys   = array();
-        $values = $params;
-
-        # build a regular expression for each parameter
-        foreach ($params as $key => $value)
-        {
-            if (is_string($key))
-            {
-                $keys[] = '/:'.$key.'/';
-            }
-            else
-            {
-                $keys[] = '/[?]/';
-            }
-
-            if (is_array($value))
-            {
-                $values[$key] = implode(',', $value);
-            }
-
-            if (is_null($value))
-            {
-                $values[$key] = 'NULL';
-            }
-        }
-
-        // Walk the array to see if we can add single-quotes to strings
-        array_walk($values, create_function('&$v, $k', 'if (!is_numeric($v) && $v!="NULL") $v = "\'".$v."\'";'));
-
-        return (string) preg_replace($keys, $values, $query, 1, $count);
-    }
-
-    // replace any non-ascii character with its hex code - supports multi-byte characters
-    private function escape($value)
-    {
-        $return = '';
-
-        for ($i = 0; $i < strlen($value); ++$i)
-        {
-            $char = $value[$i];
-            $ord  = ord($char);
-
-            if ($char !== "'" && $char !== "\"" && $char !== '\\' && $ord >= 32 && $ord <= 126)
-            {
-                $return .= $char;
-            }
-            else
-            {
-                $return .= '\\x' . dechex($ord);
-            }
-
-        }
-
-        return (string) $return;
-    }
-
     public function __construct($sql_file = NULL, $sql_type = NULL, DB $dbh)
     {
         $this->sql_file = $sql_file;
@@ -85,7 +13,7 @@ class ProcessQuery extends DB_Connector
 
         if ($this->dbh == NULL)
         {
-            $this->dbh = $dbh;
+            $this->dbh = $dbh->dbh;
         }
     }
 
@@ -115,12 +43,12 @@ class ProcessQuery extends DB_Connector
                     }
                 }
 
-                $stmt = $this->dbh->dbh->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+                $stmt = $this->dbh->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
 
                 if (!$stmt)
                 {
-                    echo "\nPDO::errorInfo():\n";
-                    print_r($this->dbh->dbh->errorInfo());
+                    echo $this->outputErrorInfo();
+                    print_r($this->dbh->errorInfo());
 
                     return FALSE;
                 }
@@ -166,8 +94,8 @@ class ProcessQuery extends DB_Connector
                     }
                     else
                     {
-                        echo "\nPDO::errorInfo():\n";
-                        print_r($this->dbh->dbh->errorInfo());
+                        echo $this->outputErrorInfo();
+                        print_r($this->dbh->errorInfo());
 
                         $stmt = NULL; // closing
 
@@ -192,13 +120,13 @@ class ProcessQuery extends DB_Connector
 
                 try
                 {
-                            $this->dbh->dbh->beginTransaction();
-                    $stmt = $this->dbh->dbh->prepare($query);
+                            $this->dbh->beginTransaction();
+                    $stmt = $this->dbh->prepare($query);
 
                     if (!$stmt)
                     {
-                        echo "\nPDO::errorInfo():\n";
-                        print_r($this->dbh->dbh->errorInfo());
+                        echo $this->outputErrorInfo();
+                        print_r($this->dbh->errorInfo());
 
                         return FALSE;
                     }
@@ -208,11 +136,11 @@ class ProcessQuery extends DB_Connector
                         {
                             if ($this->sql_type == 'insert' && $exec === TRUE)
                             {
-                                $lastInsertId = $this->dbh->dbh->lastInsertId();
+                                $lastInsertId = $this->dbh->lastInsertId();
                             }
 
                             $stmt->closeCursor();
-                            $this->dbh->dbh->commit();
+                            $this->dbh->commit();
 
                             if (isset($lastInsertId))
                             {
@@ -239,8 +167,8 @@ class ProcessQuery extends DB_Connector
                         }
                         else
                         {
-                            echo "\nPDO::errorInfo():\n";
-                            print_r($this->dbh->dbh->errorInfo());
+                            echo $this->outputErrorInfo();
+                            print_r($this->dbh->errorInfo());
 
                             $stmt = NULL; // closing
 
@@ -251,7 +179,7 @@ class ProcessQuery extends DB_Connector
                 }
                 catch (PDOException $e)
                 {
-                    $this->dbh->dbh->rollBack();
+                    $this->dbh->rollBack();
 
                     return $e->getMessage();
                 }
@@ -301,7 +229,7 @@ class ProcessQuery extends DB_Connector
                 }
             }
 
-            $stmt = $this->dbh->dbh->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+            $stmt = $this->dbh->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
 
             if ($stmt->execute())
             {
@@ -320,8 +248,8 @@ class ProcessQuery extends DB_Connector
             }
             else
             {
-                echo "\nPDO::errorInfo():\n";
-                print_r($this->dbh->dbh->errorInfo());
+                echo $this->outputErrorInfo();
+                print_r($this->dbh->errorInfo());
 
                 $stmt = NULL; // closing
 
@@ -332,5 +260,86 @@ class ProcessQuery extends DB_Connector
         {
             echo self::PDOException($exception, self::DISPLAY_TEXT);
         }
+    }
+
+    /**
+     * Replaces any parameter placeholders in a query with the value of that
+     * parameter. Useful for debugging. Assumes anonymous parameters from
+     * $params are are in the same order as specified in $query
+     *
+     * THIS IS AN ABSTRACT FUNCTION
+     *
+     * @param   string  $query  The sql query with parameter placeholders
+     * @param    array  $params The array of substitution parameters
+     * @return  string          The interpolated query
+     */
+    private function interpolateQuery($query, $params)
+    {
+        if (empty($params))
+        {
+            return (string) $query;
+        }
+
+        $keys   = array();
+        $values = $params;
+
+        # build a regular expression for each parameter
+        foreach ($params as $key => $value)
+        {
+            if (is_string($key))
+            {
+                $keys[] = '/:'.$key.'/';
+            }
+            else
+            {
+                $keys[] = '/[?]/';
+            }
+
+            if (is_array($value))
+            {
+                $values[$key] = implode(',', $value);
+            }
+
+            if (is_null($value))
+            {
+                $values[$key] = 'NULL';
+            }
+        }
+
+        // Walk the array to see if we can add single-quotes to strings
+        array_walk($values, create_function('&$v, $k', 'if (!is_numeric($v) && $v!="NULL") $v = "\'".$v."\'";'));
+
+        return (string) preg_replace($keys, $values, $query, 1, $count);
+    }
+
+    // replace any non-ascii character with its hex code - supports multi-byte characters
+    // THIS IS AN ABSTRACT FUNCTION
+    private function escape($value)
+    {
+        $return = '';
+
+        for ($i = 0; $i < strlen($value); ++$i)
+        {
+            $char = $value[$i];
+            $ord  = ord($char);
+
+            if ($char !== "'" && $char !== "\"" && $char !== '\\' && $ord >= 32 && $ord <= 126)
+            {
+                $return .= $char;
+            }
+            else
+            {
+                $return .= '\\x' . dechex($ord);
+            }
+
+        }
+
+        return (string) $return;
+    }
+
+    // THIS IS AN ABSTRACT FUNCTION
+    private function outputErrorInfo()
+    {
+        return vsprintf('%sPDO::errorInfo():%s', [PHP_EOL, PHP_EOL]);
     }
 }
