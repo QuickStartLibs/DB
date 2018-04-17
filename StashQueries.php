@@ -143,4 +143,13 @@ final class DB extends DB_Connector
     {
         self::$exceptionType = $type;
     }
+
+    public static function sanitize($string)
+    {
+        $string = stripslashes($string);
+        $string = strip_tags($string);
+        $string = htmlentities($string);
+
+        return $string;
+    }
 }
